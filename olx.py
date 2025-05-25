@@ -1,16 +1,36 @@
 import datetime
+import logging
 import os.path
+import sys
 
 import bs4
 import requests
 from requests import request
+
+
+# Create logger
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+# Formatter for logs
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+
+# File handler
+file_handler = logging.FileHandler('bot.log')
+file_handler.setLevel(logging.INFO)
+file_handler.setFormatter(formatter)
+
+# Console handler
+console_handler = logging.StreamHandler(sys.stdout)
+console_handler.setLevel(logging.INFO)
+console_handler.setFormatter(formatter)
 
 olx = (
     'https://www.olx.ua/uk/nedvizhimost/kvartiry/dolgosrochnaya-arenda-kvartir/q-%D0%BA%D0%B8%D0%B5%D0%B2/?currency=UAH&search%5Bfilter_enum_number_of_rooms_string%5D%5B0%5D=dvuhkomnatnye&search%5Bfilter_float_price%3Ato%5D=17000&search%5Border%5D=created_at%3Adesc')
 
 
 def get_new_homes():
-    print(f"{datetime.datetime.now()} - Start parsing homes")
+    logging.info(f"{datetime.datetime.now()} - Start parsing homes")
     res = request('get', olx)
     soup = bs4.BeautifulSoup(res.content, features="html.parser")
 
@@ -46,7 +66,7 @@ def get_new_homes():
         }
 
         new_homes.append(home_dict)
-    print(f"{datetime.datetime.now()} - Found {len(new_homes)} new homes")
+    logging.info(f"{datetime.datetime.now()} - Found {len(new_homes)} new homes")
     return new_homes
 
 
@@ -60,10 +80,10 @@ def get_images(url):
     if response.status_code == 200:
         with open(filename, "wb") as f:
             f.write(response.content)
-        print(f"Зображення збережено як {filename}")
+        logging.info(f"Зображення збережено як {filename}")
         return filename
     else:
-        print(f"Помилка завантаження: {response.status_code}")
+        logging.info(f"Помилка завантаження: {response.status_code}")
         return None
 
 

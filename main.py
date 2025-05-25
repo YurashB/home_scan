@@ -1,4 +1,6 @@
+import logging
 import os
+import sys
 import threading
 import time
 import schedule
@@ -8,6 +10,25 @@ from telebot import types
 
 import maps
 import olx
+
+
+# Create logger
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+# Formatter for logs
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+
+# File handler
+file_handler = logging.FileHandler('bot.log')
+file_handler.setLevel(logging.INFO)
+file_handler.setFormatter(formatter)
+
+# Console handler
+console_handler = logging.StreamHandler(sys.stdout)
+console_handler.setLevel(logging.INFO)
+console_handler.setFormatter(formatter)
+
 
 load_dotenv()
 
@@ -35,7 +56,8 @@ def handle_street_message(message):
 def check_data():
     global CHAT_ID
     if CHAT_ID == 0:
-        print("CHAT_ID не заданий")
+
+        logging.info("CHAT_ID не заданий")
         threading.Timer(300, check_data).start()
         return
 
@@ -72,5 +94,6 @@ def check_data():
 
 
 threading.Timer(10, check_data).start()
-print('Start bot')
+
+logging.info('Start bot')
 bot.polling()
