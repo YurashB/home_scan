@@ -43,6 +43,12 @@ def send_welcome(message):
     CHAT_ID = message.chat.id
     bot.reply_to(message, "Привіт! Я бот на Telebot " + str(CHAT_ID))
 
+@bot.message_handler(commands=['search'])
+def send_welcome(message):
+    global CHAT_ID
+    CHAT_ID = message.chat.id
+    bot.reply_to(message, "Привіт! Я бот на Telebot " + str(CHAT_ID))
+
 
 @bot.message_handler(func=lambda message: message.text and message.text.lower().startswith("вул"))
 def handle_street_message(message):
@@ -86,6 +92,7 @@ def check_data():
 
         try:
             bot.send_media_group(chat_id=CHAT_ID, media=media)
+            time.sleep(2)
         except Exception as e:
             bot.send_message(chat_id=CHAT_ID, text=f"❌ Помилка при надсиланні: {e}")
 
