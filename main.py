@@ -45,9 +45,7 @@ def send_welcome(message):
 
 @bot.message_handler(commands=['search'])
 def send_welcome(message):
-    global CHAT_ID
-    CHAT_ID = message.chat.id
-    bot.reply_to(message, "Привіт! Я бот на Telebot " + str(CHAT_ID))
+    check_data()
 
 
 @bot.message_handler(func=lambda message: message.text and message.text.lower().startswith("вул"))

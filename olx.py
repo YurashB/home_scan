@@ -50,7 +50,7 @@ def get_new_homes():
         price = home.find(class_='css-uj7mm0').contents[0]
 
         # Check if it is a new proposition
-        if is_last_home(title):
+        if is_last_home(title) or idx == len(list_of_homes) - 1:
             with open('last_home.txt', 'w', encoding='utf-8') as file:
                 file.write(first_home_at_list)
 
