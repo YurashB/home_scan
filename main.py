@@ -91,7 +91,7 @@ def check_data():
 
         try:
             bot.send_media_group(chat_id=CHAT_ID, media=media)
-            time.sleep(10)
+            time.sleep(31)
         except Exception as e:
             bot.send_message(chat_id=CHAT_ID, text=f"❌ Помилка при надсиланні: {e}")
 
