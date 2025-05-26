@@ -72,7 +72,8 @@ def check_data():
         threading.Timer(300, check_data).start()
         return
 
-    for home in new_homes:
+    for idx, home in enumerate(new_homes):
+        if idx > 5: break
         title = home['title']
         link = home['link']
         price = home['price']
@@ -90,7 +91,7 @@ def check_data():
 
         try:
             bot.send_media_group(chat_id=CHAT_ID, media=media)
-            time.sleep(2)
+            time.sleep(10)
         except Exception as e:
             bot.send_message(chat_id=CHAT_ID, text=f"❌ Помилка при надсиланні: {e}")
 
