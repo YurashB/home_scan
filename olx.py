@@ -6,7 +6,7 @@ import sys
 import bs4
 import requests
 from requests import request
-
+import database
 
 # Create logger
 logger = logging.getLogger()
@@ -39,33 +39,23 @@ def get_new_homes():
     new_homes = []
     first_home_at_list = ''
     for idx, home in enumerate(list_of_homes):
-        # Skip top sections
-        if idx <= 2: continue
 
         title = home.find(class_='css-u2ayx9').a.h4.contents[0]
-        # Set first proposition
-        if idx == 3: first_home_at_list = title
-
         link = 'https://www.olx.ua' + home.find(class_='css-u2ayx9').a['href']
         price = home.find(class_='css-uj7mm0').contents[0]
 
-        # Check if it is a new proposition
-        if is_last_home(title) or idx == len(list_of_homes) - 1:
-            with open('last_home.txt', 'w', encoding='utf-8') as file:
-                file.write(first_home_at_list)
+        if not database.check_and_add_home(link,title, price):
+            description, imgs_urls = get_home_details(link)
+            home_dict = {
+                'title': title,
+                'link': link,
+                'price': price,
+                'description': description,
+                'images': imgs_urls
+            }
 
-            break
+            new_homes.append(home_dict)
 
-        description, imgs_urls = get_home_details(link)
-        home_dict = {
-            'title': title,
-            'link': link,
-            'price': price,
-            'description': description,
-            'images': imgs_urls
-        }
-
-        new_homes.append(home_dict)
     logging.info(f"{datetime.datetime.now()} - Found {len(new_homes)} new homes")
     return new_homes
 
@@ -99,12 +89,3 @@ def get_home_details(url):
         imgs_urls.append(img)
 
     return description, imgs_urls[:9]
-
-
-def is_last_home(last_title):
-    title = ''
-
-    with open('last_home.txt', 'r', encoding='utf-8') as file:
-        title = str(file.read())
-
-    return title == last_title

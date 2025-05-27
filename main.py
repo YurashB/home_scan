@@ -51,7 +51,11 @@ def send_welcome(message):
 @bot.message_handler(func=lambda message: message.text and message.text.lower().startswith("вул"))
 def handle_street_message(message):
     street_name = message.text.strip()
-    maps_info = maps.get_maps_info(street_name)
+    try:
+        maps_info = maps.get_maps_info(street_name)
+    except Exception as e:
+        bot.reply_to(message, f"❌ Не вийшло розрахувати маршрут: {e}")
+        return
     text = (f"Capgemini: {maps_info[0]}, час: {maps_info[1]}\n"
             f"Betonenergo: {maps_info[2]}, час: {maps_info[3]}")
     bot.reply_to(message, text)
@@ -90,8 +94,9 @@ def check_data():
                 media.append(types.InputMediaPhoto(media=img_url))
 
         try:
+            print(f"Found new home: {title}, link: {link}, price: {price}")
             bot.send_media_group(chat_id=CHAT_ID, media=media)
-            time.sleep(31)
+            # time.sleep(31)
         except Exception as e:
             bot.send_message(chat_id=CHAT_ID, text=f"❌ Помилка при надсиланні: {e}")
 
