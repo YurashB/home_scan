@@ -10,7 +10,7 @@ from telebot import types
 
 import maps
 import olx
-
+from lun import lun
 
 # Create logger
 logger = logging.getLogger()
@@ -66,25 +66,27 @@ def check_data():
     if CHAT_ID == 0:
 
         logging.info("CHAT_ID не заданий")
-        threading.Timer(300, check_data).start()
+        threading.Timer(600, check_data).start()
         return
 
-    new_homes = olx.get_new_homes()
+    olx_new_homes = olx.get_new_homes()
+    lun_new_homes = lun.get_new_homes()
+
+    new_homes = olx_new_homes + lun_new_homes
 
     if not new_homes:
-
-        threading.Timer(300, check_data).start()
+        threading.Timer(600, check_data).start()
         return
 
     for idx, home in enumerate(new_homes):
-        if idx > 5: break
+        site = home['site']
         title = home['title']
         link = home['link']
         price = home['price']
         description = home['description']
         imgs_urls = home['images']
 
-        caption = f"*{title}*\n💰 Ціна: {price}\n👉 [Переглянути оголошення]({link})"
+        caption = f"*{site}*\n *{title}*\n💰 Ціна: {price}\n👉 [Переглянути оголошення]({link})"
 
         media = []
         for i, img_url in enumerate(imgs_urls):
@@ -101,7 +103,7 @@ def check_data():
             bot.send_message(chat_id=CHAT_ID, text=f"❌ Помилка при надсиланні: {e}")
 
     # 🕐 Запускаємо повторно через 5 хв
-    threading.Timer(300, check_data).start()
+    threading.Timer(600, check_data).start()
 
 
 threading.Timer(10, check_data).start()

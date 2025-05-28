@@ -20,13 +20,14 @@ def get_street(title):
     except Exception:
         return ''
 
+
 def get_maps_info(street):
-    arrival_time = datetime.now().replace(hour=9) + timedelta(days=1)
+    arrival_time_v = datetime.now().replace(hour=9) + timedelta(days=1)
     mode = 'transit'
     units = 'metrics'
     try:
         from_home_to_cap = gmaps.directions(street, capgemini_address, mode)
-        from_home_to_beton = gmaps.directions(street, betonenergo_address, mode, arrival_time=arrival_time)
+        from_home_to_beton = gmaps.directions(street, betonenergo_address, mode, arrival_time=arrival_time_v)
 
         to_cap_dist = from_home_to_cap[0]['legs'][0]['distance']['text']
         to_cap_time = from_home_to_cap[0]['legs'][0]['duration']['text']

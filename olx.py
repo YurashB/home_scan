@@ -26,7 +26,7 @@ console_handler.setLevel(logging.INFO)
 console_handler.setFormatter(formatter)
 
 olx = (
-    'https://www.olx.ua/uk/nedvizhimost/kvartiry/dolgosrochnaya-arenda-kvartir/q-%D0%BA%D0%B8%D0%B5%D0%B2/?currency=UAH&search%5Bfilter_enum_number_of_rooms_string%5D%5B0%5D=dvuhkomnatnye&search%5Bfilter_float_price%3Ato%5D=17000&search%5Border%5D=created_at%3Adesc')
+    'https://www.olx.ua/uk/nedvizhimost/kvartiry/dolgosrochnaya-arenda-kvartir/q-%D0%BA%D0%B8%D0%B5%D0%B2/?currency=UAH&search%5Bfilter_enum_number_of_rooms_string%5D%5B0%5D=dvuhkomnatnye&search%5Bfilter_float_price%3Ato%5D=15000&search%5Border%5D=created_at%3Adesc')
 
 
 def get_new_homes():
@@ -47,6 +47,7 @@ def get_new_homes():
         if not database.check_and_add_home(link,title, price):
             description, imgs_urls = get_home_details(link)
             home_dict = {
+                'site': 'olx',
                 'title': title,
                 'link': link,
                 'price': price,
@@ -56,7 +57,7 @@ def get_new_homes():
 
             new_homes.append(home_dict)
 
-    logging.info(f"{datetime.datetime.now()} - Found {len(new_homes)} new homes")
+    logging.info(f"{datetime.datetime.now()} - OLX - Found {len(new_homes)} new homes")
     return new_homes
 
 
