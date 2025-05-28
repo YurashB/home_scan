@@ -31,9 +31,6 @@ lun = (
 
 
 def get_new_homes():
-    lun = (
-        'https://lun.ua/rent/kyiv/flats?price_max=15000&currency=UAH&room_count=2&room_count=3&sort=insert_time')
-
     res = request('get', lun)
     soup = bs4.BeautifulSoup(res.content, features="html.parser")
     homes = json.loads(soup.find("script", id="schema-real-estate").contents[0]).get('itemListElement')
@@ -49,7 +46,7 @@ def get_new_homes():
 
         if not database.check_and_add_home(link, name, price):
             home_dict = {
-                'site' : 'lun',
+                'site': 'lun',
                 'title': name,
                 'link': lun,
                 'price': price,
@@ -61,5 +58,3 @@ def get_new_homes():
 
     logging.info(f"{datetime.datetime.now()} - LUN - Found {len(new_homes)} new homes")
     return new_homes
-
-

@@ -10,7 +10,7 @@ from telebot import types
 
 import maps
 import olx
-from lun import lun
+import lun
 
 # Create logger
 logger = logging.getLogger()
