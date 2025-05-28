@@ -26,7 +26,7 @@ def get_maps_info(street):
     mode = 'transit'
     units = 'metrics'
     try:
-        from_home_to_cap = gmaps.directions(street, capgemini_address, mode)
+        from_home_to_cap = gmaps.directions(street, capgemini_address, mode, arrival_time=arrival_time_v)
         from_home_to_beton = gmaps.directions(street, betonenergo_address, mode, arrival_time=arrival_time_v)
 
         to_cap_dist = from_home_to_cap[0]['legs'][0]['distance']['text']
