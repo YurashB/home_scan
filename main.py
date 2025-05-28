@@ -87,13 +87,13 @@ def check_data():
         imgs_urls = home['images']
 
         if site == 'lun': title = "Вул. " + title + ",Київ"
-        maps_info = None
+        text = ''
         try:
             maps_info = maps.get_maps_info(title)
+            text = (f"Capgemini: {maps_info[0]}, час: {maps_info[1]}\n"
+                    f"Betonenergo: {maps_info[2]}, час: {maps_info[3]}")
         except Exception as e:
             pass
-        text = (f"Capgemini: {maps_info[0]}, час: {maps_info[1]}\n"
-                f"Betonenergo: {maps_info[2]}, час: {maps_info[3]}")
 
         caption = f"*{title}*\n💰 Ціна: {price}\n👉 *{site}*:[Переглянути оголошення]({link})\n{text}"
 
