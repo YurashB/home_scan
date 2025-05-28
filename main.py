@@ -69,7 +69,7 @@ def check_data():
         threading.Timer(600, check_data).start()
         return
 
-    olx_new_homes = olx.get_new_homes()
+    olx_new_homes = olx.get_new_homes()[:1]
     lun_new_homes = lun.get_new_homes()
 
     new_homes = olx_new_homes + lun_new_homes
@@ -86,7 +86,16 @@ def check_data():
         description = home['description']
         imgs_urls = home['images']
 
-        caption = f"*{site}*\n *{title}*\n💰 Ціна: {price}\n👉 [Переглянути оголошення]({link})"
+        if site == 'lun': title = "Вул. " + title + ",Київ"
+        maps_info = None
+        try:
+            maps_info = maps.get_maps_info(title)
+        except Exception as e:
+            pass
+        text = (f"Capgemini: {maps_info[0]}, час: {maps_info[1]}\n"
+                f"Betonenergo: {maps_info[2]}, час: {maps_info[3]}")
+
+        caption = f"*{title}*\n💰 Ціна: {price}\n👉 *{site}*:[Переглянути оголошення]({link})\n{text}"
 
         media = []
         for i, img_url in enumerate(imgs_urls):
