@@ -51,7 +51,7 @@ def get_new_homes():
                 'link': lun,
                 'price': price,
                 'description': '',
-                'images': images
+                'images': images[:9]
             }
 
             new_homes.append(home_dict)
