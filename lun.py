@@ -33,7 +33,11 @@ lun = (
 def get_new_homes():
     res = request('get', lun)
     soup = bs4.BeautifulSoup(res.content, features="html.parser")
-    homes = json.loads(soup.find("script", id="schema-real-estate").contents[0]).get('itemListElement')
+    try:
+        homes = json.loads(soup.find("script", id="schema-real-estate").contents[0]).get('itemListElement')
+    except Exception as e:
+        logging.info(f"{datetime.datetime.now()} - LUN - Error parsing homes: {e}")
+        return []
 
     new_homes = []
     for home in homes:
