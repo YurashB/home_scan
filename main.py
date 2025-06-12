@@ -97,7 +97,6 @@ def check_data():
 
             if home_loc:
                 imgs_urls[8] = home_loc
-                print("CHANGE PIC")
         except Exception as e:
             pass
 
