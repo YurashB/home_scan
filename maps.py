@@ -14,6 +14,16 @@ betonenergo_address = "Бульвар Миколи Міхновського, 38,
 home_address = 'Київ, ' + 'Янгеля 20'
 
 
+def pick_street_url(points):
+    return (f"https://maps.googleapis.com/maps/api/staticmap"
+            f"?center={points['lat']},{points['lng']}"
+            f"&zoom=12"
+            f"&size=600x400"
+            f"&markers=color:red%7C{points['lat']},{points['lng']}"
+            f"&key={google_map_key}")
+
+
+
 def get_street(title):
     try:
         return 'вул' + title.split('вул')[1]
@@ -28,6 +38,7 @@ def get_maps_info(street):
     try:
         from_home_to_cap = gmaps.directions(street, capgemini_address, mode, arrival_time=arrival_time_v)
         from_home_to_beton = gmaps.directions(street, betonenergo_address, mode, arrival_time=arrival_time_v)
+        home_point = from_home_to_cap[0]["legs"][0]["start_location"]
 
         to_cap_dist = from_home_to_cap[0]['legs'][0]['distance']['text']
         to_cap_time = from_home_to_cap[0]['legs'][0]['duration']['text']
@@ -35,6 +46,6 @@ def get_maps_info(street):
         to_beton_dist = from_home_to_beton[0]['legs'][0]['distance']['text']
         to_beton_time = from_home_to_beton[0]['legs'][0]['duration']['text']
 
-        return to_cap_dist, to_cap_time, to_beton_dist, to_beton_time
+        return to_cap_dist, to_cap_time, to_beton_dist, to_beton_time, pick_street_url(home_point)
     except ApiError as error:
         return Exception('Cant process street')

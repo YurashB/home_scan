@@ -58,10 +58,11 @@ def handle_street_message(message):
         return
     text = (f"Capgemini: {maps_info[0]}, час: {maps_info[1]}\n"
             f"Betonenergo: {maps_info[2]}, час: {maps_info[3]}")
-    bot.reply_to(message, text)
+    bot.send_photo(photo=maps_info[4], reply_to_message_id=message.id, caption=text, chat_id=CHAT_ID)
 
 
 def check_data():
+    pass
     global CHAT_ID
     if CHAT_ID == 0:
 
@@ -92,6 +93,11 @@ def check_data():
             maps_info = maps.get_maps_info(title)
             text = (f"Capgemini: {maps_info[0]}, час: {maps_info[1]}\n"
                     f"Betonenergo: {maps_info[2]}, час: {maps_info[3]}")
+            home_loc = maps_info[4]
+
+            if home_loc:
+                imgs_urls[8] = home_loc
+                print("CHANGE PIC")
         except Exception as e:
             pass
 
