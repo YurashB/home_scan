@@ -44,7 +44,7 @@ def get_new_homes():
         link = 'https://www.olx.ua' + home.find(class_='css-u2ayx9').a['href']
         price = home.find(class_='css-uj7mm0').contents[0]
 
-        if not database.check_and_add_home(link,title, price):
+        if not database.check_and_add_home(link, title, price):
             description, imgs_urls = get_home_details(link)
             home_dict = {
                 'site': 'olx',
