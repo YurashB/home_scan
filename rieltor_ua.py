@@ -32,7 +32,6 @@ rieltor_ua = (
 
 
 def get_new_homes():
-    logging.info(f"{datetime.datetime.now()} - Start parsing homes")
     res = request('get', rieltor_ua, headers=headers)
     soup = bs4.BeautifulSoup(res.content, features="html.parser")
 
