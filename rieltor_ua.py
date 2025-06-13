@@ -48,7 +48,11 @@ def get_new_homes():
         description = home.select_one('.catalog-card-description span').get_text(strip=True)
 
         imgs = home.select('.offer-photo-slider-slide img')
-        imgs_urls = [img['src'] for img in imgs if 'src' in img.attrs]
+        imgs_urls = []
+        for img in imgs:
+            if 'src' in img.attrs:
+                high_res_url = img['src'].replace('crop/400x300/', 'crop/1200x900/')
+                imgs_urls.append(high_res_url)
 
         home_dict = {
             'site': 'olx',
@@ -56,7 +60,7 @@ def get_new_homes():
             'link': link,
             'price': price,
             'description': description,
-            'images': imgs_urls
+            'images': imgs_urls[:8]
         }
 
         print()
