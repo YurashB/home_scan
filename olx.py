@@ -26,7 +26,7 @@ console_handler.setLevel(logging.INFO)
 console_handler.setFormatter(formatter)
 
 olx = (
-    'https://www.olx.ua/uk/nedvizhimost/kvartiry/dolgosrochnaya-arenda-kvartir/q-%D0%BA%D0%B8%D0%B5%D0%B2/?currency=UAH&search%5Bfilter_enum_number_of_rooms_string%5D%5B0%5D=dvuhkomnatnye&search%5Bfilter_float_price%3Ato%5D=15000&search%5Border%5D=created_at%3Adesc')
+    'https://www.olx.ua/uk/nedvizhimost/kvartiry/dolgosrochnaya-arenda-kvartir/kiev/?currency=UAH&search%5Border%5D=created_at:desc&search%5Bfilter_float_price:to%5D=16500&search%5Bfilter_enum_number_of_rooms_string%5D%5B0%5D=dvuhkomnatnye')
 
 
 def get_new_homes():

@@ -27,7 +27,7 @@ console_handler.setLevel(logging.INFO)
 console_handler.setFormatter(formatter)
 
 lun = (
-    'https://lun.ua/rent/kyiv/flats?price_max=15000&currency=UAH&room_count=2&room_count=3&sort=insert_time')
+    'https://lun.ua/rent/kyiv/flats?price_max=16500&currency=UAH&room_count=2&room_count=3&sort=insert_time')
 
 
 def get_new_homes():
