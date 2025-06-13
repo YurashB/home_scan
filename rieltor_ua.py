@@ -1,0 +1,84 @@
+import datetime
+import logging
+import os.path
+import sys
+
+import bs4
+import requests
+from requests import request
+import database
+
+# Create logger
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+# Formatter for logs
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+
+# File handler
+file_handler = logging.FileHandler('bot.log')
+file_handler.setLevel(logging.INFO)
+file_handler.setFormatter(formatter)
+
+# Console handler
+console_handler = logging.StreamHandler(sys.stdout)
+console_handler.setLevel(logging.INFO)
+console_handler.setFormatter(formatter)
+
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"}
+rieltor_ua = (
+    'https://rieltor.ua/flats-rent/2-rooms/?district%5B0%5D=81&district%5B1%5D=85&district%5B2%5D=76&district%5B3%5D=82&district%5B4%5D=78&district%5B5%5D=86&district%5B6%5D=80&district%5B7%5D=79&price_max=16500&radius=20&sort=bycreated#9.6/50.444/30.5336')
+
+
+def get_new_homes():
+    logging.info(f"{datetime.datetime.now()} - Start parsing homes")
+    res = request('get', rieltor_ua, headers=headers)
+    soup = bs4.BeautifulSoup(res.content, features="html.parser")
+
+    list_of_homes = soup.find(class_='catalog-items-container').find_all(class_='catalog-card')
+
+    new_homes = []
+    first_home_at_list = ''
+    for idx, home in enumerate(list_of_homes):
+
+        title = home.select_one('.catalog-card-address').get_text(strip=True)
+        link = home.select_one('a.catalog-card-media')['href']
+        price = home.select_one('.catalog-card-price-title').get_text(strip=True)
+        description = home.select_one('.catalog-card-description span').get_text(strip=True)
+
+        imgs = home.select('.offer-photo-slider-slide img')
+        imgs_urls = [img['src'] for img in imgs if 'src' in img.attrs]
+
+        home_dict = {
+            'site': 'olx',
+            'title': title,
+            'link': link,
+            'price': price,
+            'description': description,
+            'images': imgs_urls
+        }
+
+        print()
+
+        if not database.check_and_add_home(link, title, price):
+            home_dict = {
+                'site': 'Rieltor_ua',
+                'title': "Вул. " + title,
+                'link': link,
+                'price': price,
+                'description': description,
+                'images': imgs_urls
+            }
+
+            new_homes.append(home_dict)
+
+    logging.info(f"{datetime.datetime.now()} - Rieltor UA - Found {len(new_homes)} new homes")
+    return new_homes
+
+
+if __name__ == "__main__":
+    logging.basicConfig(handlers=[file_handler, console_handler], level=logging.INFO)
+    new_homes = get_new_homes()
+    for home in new_homes:
+        print(home)

@@ -11,6 +11,7 @@ from telebot import types
 import maps
 import olx
 import lun
+import rieltor_ua
 
 # Create logger
 logger = logging.getLogger()
@@ -70,10 +71,11 @@ def check_data():
         threading.Timer(300, check_data).start()
         return
 
-    olx_new_homes = olx.get_new_homes()[:1]
+    olx_new_homes = olx.get_new_homes()
     lun_new_homes = lun.get_new_homes()
+    rieltor_ua_new_homes = rieltor_ua.get_new_homes()
 
-    new_homes = olx_new_homes + lun_new_homes
+    new_homes = olx_new_homes + lun_new_homes + rieltor_ua_new_homes
 
     if not new_homes:
         threading.Timer(300, check_data).start()
