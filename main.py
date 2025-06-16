@@ -108,7 +108,7 @@ def check_data():
             )
             location_image = maps_info[4]
             if location_image:
-                imgs[-1] = location_image
+                imgs[0] = location_image
         except Exception as e:
             logging.warning(f"Не вдалося отримати маршрут для '{title}': {e}")
 

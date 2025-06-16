@@ -89,4 +89,4 @@ def get_home_details(url):
         img = imgs.find('img')['src']
         imgs_urls.append(img)
 
-    return description, imgs_urls[:9]
+    return description, imgs_urls
