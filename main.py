@@ -3,120 +3,146 @@ import os
 import sys
 import threading
 import time
-import schedule
 import telebot
 from dotenv import load_dotenv
 from telebot import types
 
+# Імпорт власних модулів
 import maps
 import sites.olx as olx
 import sites.lun as lun
 import sites.rieltor_ua as rieltor_ua
 
-# Create logger
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
 
-# Formatter for logs
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+# === Налаштування логера ===
+def setup_logger():
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
 
-# File handler
-file_handler = logging.FileHandler('bot.log')
-file_handler.setLevel(logging.INFO)
-file_handler.setFormatter(formatter)
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 
-# Console handler
-console_handler = logging.StreamHandler(sys.stdout)
-console_handler.setLevel(logging.INFO)
-console_handler.setFormatter(formatter)
+    file_handler = logging.FileHandler('bot.log')
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(formatter)
 
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(formatter)
+
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+
+
+setup_logger()
+logging.info("Logger initialized")
+
+# === Налаштування бота ===
 load_dotenv()
-
 BOT_TOKEN = os.environ.get('BOT_TOKEN')
 bot = telebot.TeleBot(BOT_TOKEN)
-CHAT_ID = -4862542990
 
-REPEAT_TIME = 200
+# === Константи ===
+CHAT_ID = -4862542990  # Можна буде оновити через /start
+REPEAT_INTERVAL = 200  # Інтервал перевірки нових квартир
 
 
+# === Обробка команди /start ===
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     global CHAT_ID
     CHAT_ID = message.chat.id
-    bot.reply_to(message, "Привіт! Я бот на Telebot " + str(CHAT_ID))
+    bot.reply_to(message, f"Привіт! Я бот на Telebot. Ваш chat_id: {CHAT_ID}")
 
 
-@bot.message_handler(func=lambda message: message.text and message.text.lower().startswith("вул"))
+# === Обробка повідомлень з вулицями ===
+@bot.message_handler(func=lambda msg: msg.text and msg.text.lower().startswith("вул"))
 def handle_street_message(message):
     street_name = message.text.strip()
     try:
         maps_info = maps.get_maps_info(street_name)
+        caption = (
+            f"Capgemini: {maps_info[0]}, час: {maps_info[1]}\n"
+            f"Betonenergo: {maps_info[2]}, час: {maps_info[3]}"
+        )
+        bot.send_photo(chat_id=message.chat.id, photo=maps_info[4], caption=caption, reply_to_message_id=message.id)
     except Exception as e:
         bot.reply_to(message, f"❌ Не вийшло розрахувати маршрут: {e}")
-        return
-    text = (f"Capgemini: {maps_info[0]}, час: {maps_info[1]}\n"
-            f"Betonenergo: {maps_info[2]}, час: {maps_info[3]}")
-    bot.send_photo(photo=maps_info[4], reply_to_message_id=message.id, caption=text, chat_id=CHAT_ID)
 
 
+# === Основна логіка перевірки нових квартир ===
 def check_data():
     global CHAT_ID
+
     if CHAT_ID == 0:
-        logging.info("CHAT_ID не заданий")
-        threading.Timer(REPEAT_TIME, check_data).start()
+        logging.info("CHAT_ID не заданий. Очікування оновлення...")
+        schedule_next_check()
         return
 
-    olx_new_homes = olx.get_new_homes()
-    lun_new_homes = lun.get_new_homes()
-    rieltor_ua_new_homes = rieltor_ua.get_new_homes()
+    olx_homes = olx.get_new_homes()
+    lun_homes = lun.get_new_homes()
+    rieltor_homes = rieltor_ua.get_new_homes()
 
-    new_homes = olx_new_homes + lun_new_homes + rieltor_ua_new_homes
+    new_homes = olx_homes + lun_homes + rieltor_homes
 
     if not new_homes:
-        threading.Timer(REPEAT_TIME, check_data).start()
+        logging.info("Нових квартир не знайдено.")
+        schedule_next_check()
         return
 
-    for idx, home in enumerate(new_homes):
+    for home in new_homes:
         site = home['site']
         title = home['title']
         link = home['link']
         price = home['price']
-        description = home['description']
-        imgs_urls = home['images']
+        imgs = home['images']
 
-        if site == 'lun' or site == 'rieltor_ua': title = "Вул. " + title + ",Київ"
-        text = ''
+        if site in {'lun', 'rieltor_ua'}:
+            title = f"Вул. {title}, Київ"
+
+        route_info_text = ""
         try:
             maps_info = maps.get_maps_info(title)
-            text = (f"Capgemini: {maps_info[0]}, час: {maps_info[1]}\n"
-                    f"Betonenergo: {maps_info[2]}, час: {maps_info[3]}")
-            home_loc = maps_info[4]
-
-            if home_loc:
-                imgs_urls[len(imgs_urls) - 1] = home_loc
+            route_info_text = (
+                f"Capgemini: {maps_info[0]}, час: {maps_info[1]}\n"
+                f"Betonenergo: {maps_info[2]}, час: {maps_info[3]}"
+            )
+            location_image = maps_info[4]
+            if location_image:
+                imgs[-1] = location_image
         except Exception as e:
-            pass
+            logging.warning(f"Не вдалося отримати маршрут для '{title}': {e}")
 
-        caption = f"*{title}*\n💰 Ціна: {price}\n👉 *{site}*:[Переглянути оголошення]({link})\n{text}"
+        caption = (
+            f"*{title}*\n"
+            f"💰 Ціна: {price}\n"
+            f"👉 *{site}*:[Переглянути оголошення]({link})\n"
+            f"{route_info_text}"
+        )
 
-        media = []
-        for i, img_url in enumerate(imgs_urls):
+        media_group = []
+        for i, img_url in enumerate(imgs):
             if i == 0:
-                media.append(types.InputMediaPhoto(media=img_url[:9], caption=caption, parse_mode="Markdown"))
+                media_group.append(types.InputMediaPhoto(media=img_url, caption=caption, parse_mode="Markdown"))
             else:
-                media.append(types.InputMediaPhoto(media=img_url[:9]))
+                media_group.append(types.InputMediaPhoto(media=img_url))
 
         try:
-            print(f"Found new home: {title}, link: {link}, price: {price}")
-            bot.send_media_group(chat_id=CHAT_ID, media=media[:9])
+            logging.info(f"Нова квартира: {title} | {price} | {link}")
+            bot.send_media_group(chat_id=CHAT_ID, media=media_group[:10])
             time.sleep(31)
         except Exception as e:
-            bot.send_message(chat_id=CHAT_ID, text=f"❌ Помилка при надсиланні: {e}\nLink: {link}\nTitle: {title}",)
+            bot.send_message(chat_id=CHAT_ID, text=f"❌ Помилка при надсиланні: {e}\nLink: {link}\nTitle: {title}")
 
-    threading.Timer(REPEAT_TIME, check_data).start()
+    schedule_next_check()
 
 
+def schedule_next_check():
+    threading.Timer(REPEAT_INTERVAL, check_data).start()
+
+
+# === Старт першої перевірки ===
 threading.Timer(10, check_data).start()
 
-logging.info('Start bot')
+# === Запуск бота ===
+logging.info("Бот запущено.")
 bot.polling()
