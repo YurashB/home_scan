@@ -9,9 +9,9 @@ from dotenv import load_dotenv
 from telebot import types
 
 import maps
-import olx
-import lun
-import rieltor_ua
+import sites.olx as olx
+import sites.lun as lun
+import sites.rieltor_ua as rieltor_ua
 
 # Create logger
 logger = logging.getLogger()
@@ -30,12 +30,13 @@ console_handler = logging.StreamHandler(sys.stdout)
 console_handler.setLevel(logging.INFO)
 console_handler.setFormatter(formatter)
 
-
 load_dotenv()
 
 BOT_TOKEN = os.environ.get('BOT_TOKEN')
 bot = telebot.TeleBot(BOT_TOKEN)
 CHAT_ID = -4862542990
+
+REPEAT_TIME = 200
 
 
 @bot.message_handler(commands=['start'])
@@ -43,10 +44,6 @@ def send_welcome(message):
     global CHAT_ID
     CHAT_ID = message.chat.id
     bot.reply_to(message, "Привіт! Я бот на Telebot " + str(CHAT_ID))
-
-@bot.message_handler(commands=['search'])
-def send_welcome(message):
-    check_data()
 
 
 @bot.message_handler(func=lambda message: message.text and message.text.lower().startswith("вул"))
@@ -63,12 +60,10 @@ def handle_street_message(message):
 
 
 def check_data():
-    pass
     global CHAT_ID
     if CHAT_ID == 0:
-
         logging.info("CHAT_ID не заданий")
-        threading.Timer(300, check_data).start()
+        threading.Timer(REPEAT_TIME, check_data).start()
         return
 
     olx_new_homes = olx.get_new_homes()
@@ -78,7 +73,7 @@ def check_data():
     new_homes = olx_new_homes + lun_new_homes + rieltor_ua_new_homes
 
     if not new_homes:
-        threading.Timer(300, check_data).start()
+        threading.Timer(REPEAT_TIME, check_data).start()
         return
 
     for idx, home in enumerate(new_homes):
@@ -89,7 +84,7 @@ def check_data():
         description = home['description']
         imgs_urls = home['images']
 
-        if site == 'lun': title = "Вул. " + title + ",Київ"
+        if site == 'lun' or site == 'rieltor_ua': title = "Вул. " + title + ",Київ"
         text = ''
         try:
             maps_info = maps.get_maps_info(title)
@@ -98,7 +93,7 @@ def check_data():
             home_loc = maps_info[4]
 
             if home_loc:
-                imgs_urls[8] = home_loc
+                imgs_urls[len(imgs_urls) - 1] = home_loc
         except Exception as e:
             pass
 
@@ -107,19 +102,18 @@ def check_data():
         media = []
         for i, img_url in enumerate(imgs_urls):
             if i == 0:
-                media.append(types.InputMediaPhoto(media=img_url, caption=caption, parse_mode="Markdown"))
+                media.append(types.InputMediaPhoto(media=img_url[:9], caption=caption, parse_mode="Markdown"))
             else:
-                media.append(types.InputMediaPhoto(media=img_url))
+                media.append(types.InputMediaPhoto(media=img_url[:9]))
 
         try:
             print(f"Found new home: {title}, link: {link}, price: {price}")
-            bot.send_media_group(chat_id=CHAT_ID, media=media)
+            bot.send_media_group(chat_id=CHAT_ID, media=media[:9])
             time.sleep(31)
         except Exception as e:
-            bot.send_message(chat_id=CHAT_ID, text=f"❌ Помилка при надсиланні: {e}")
+            bot.send_message(chat_id=CHAT_ID, text=f"❌ Помилка при надсиланні: {e}\nLink: {link}\nTitle: {title}",)
 
-    # 🕐 Запускаємо повторно через 5 хв
-    threading.Timer(300, check_data).start()
+    threading.Timer(REPEAT_TIME, check_data).start()
 
 
 threading.Timer(10, check_data).start()

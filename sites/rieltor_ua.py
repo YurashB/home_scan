@@ -38,13 +38,12 @@ def get_new_homes():
     list_of_homes = soup.find(class_='catalog-items-container').find_all(class_='catalog-card')
 
     new_homes = []
-    first_home_at_list = ''
     for idx, home in enumerate(list_of_homes):
 
         title = home.select_one('.catalog-card-address').get_text(strip=True)
         link = home.select_one('a.catalog-card-media')['href']
         price = home.select_one('.catalog-card-price-title').get_text(strip=True)
-        description = home.select_one('.catalog-card-description span').get_text(strip=True)
+        description = ''
 
         imgs = home.select('.offer-photo-slider-slide img')
         imgs_urls = []
@@ -53,25 +52,14 @@ def get_new_homes():
                 high_res_url = img['src'].replace('crop/400x300/', 'crop/1200x900/')
                 imgs_urls.append(high_res_url)
 
-        home_dict = {
-            'site': 'olx',
-            'title': title,
-            'link': link,
-            'price': price,
-            'description': description,
-            'images': imgs_urls[:8]
-        }
-
-        print()
-
         if not database.check_and_add_home(link, title, price):
             home_dict = {
-                'site': 'Rieltor_ua',
-                'title': "Вул. " + title,
+                'site': 'rieltor_ua',
+                'title': title,
                 'link': link,
                 'price': price,
                 'description': description,
-                'images': imgs_urls
+                'images': imgs_urls[:9]
             }
 
             new_homes.append(home_dict)
