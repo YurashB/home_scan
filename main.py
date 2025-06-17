@@ -85,7 +85,6 @@ def check_data():
     new_homes = olx_homes + lun_homes + rieltor_homes
 
     if not new_homes:
-        logging.info("Нових квартир не знайдено.")
         schedule_next_check()
         return
 
@@ -127,12 +126,12 @@ def check_data():
                 media_group.append(types.InputMediaPhoto(media=img_url))
 
         try:
-            logging.info(f"Нова квартира: {title} | {price} | {link}")
             bot.send_media_group(chat_id=CHAT_ID, media=media_group[:9])
-            time.sleep(31)
+            time.sleep(61)
         except Exception as e:
             bot.send_message(chat_id=CHAT_ID, text=f"❌ Помилка при надсиланні: {e}\nLink: {link}\nTitle: {title}")
 
+    time.sleep(REPEAT_INTERVAL)
     schedule_next_check()
 
 
