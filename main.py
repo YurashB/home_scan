@@ -128,7 +128,7 @@ def check_data():
 
         try:
             logging.info(f"Нова квартира: {title} | {price} | {link}")
-            bot.send_media_group(chat_id=CHAT_ID, media=media_group[:10])
+            bot.send_media_group(chat_id=CHAT_ID, media=media_group[:9])
             time.sleep(31)
         except Exception as e:
             bot.send_message(chat_id=CHAT_ID, text=f"❌ Помилка при надсиланні: {e}\nLink: {link}\nTitle: {title}")
