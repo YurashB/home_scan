@@ -3,11 +3,12 @@ import os
 import sys
 import threading
 import time
+
 import telebot
 from dotenv import load_dotenv
 from telebot import types
 
-# Імпорт власних модулів
+import log
 import maps
 import sites.olx as olx
 import sites.lun as lun
@@ -15,25 +16,7 @@ import sites.rieltor_ua as rieltor_ua
 
 
 # === Налаштування логера ===
-def setup_logger():
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
-
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-
-    file_handler = logging.FileHandler('bot.log')
-    file_handler.setLevel(logging.INFO)
-    file_handler.setFormatter(formatter)
-
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.INFO)
-    console_handler.setFormatter(formatter)
-
-    logger.addHandler(file_handler)
-    logger.addHandler(console_handler)
-
-
-setup_logger()
+log.init_logger()
 logging.info("Logger initialized")
 
 # === Налаштування бота ===
@@ -42,16 +25,23 @@ BOT_TOKEN = os.environ.get('BOT_TOKEN')
 bot = telebot.TeleBot(BOT_TOKEN)
 
 # === Константи ===
-CHAT_ID = -4862542990  # Можна буде оновити через /start
-REPEAT_INTERVAL = 200  # Інтервал перевірки нових квартир
+CHAT_ID = -4862542990
+REPEAT_INTERVAL = 200
 
 
-# === Обробка команди /start ===
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     global CHAT_ID
     CHAT_ID = message.chat.id
     bot.reply_to(message, f"Привіт! Я бот на Telebot. Ваш chat_id: {CHAT_ID}")
+
+
+@bot.message_handler(commands=['log'])
+def send_welcome(message):
+    with open('bot.log', 'r') as f:
+        lines = f.readlines()
+        log = lines[-3:]
+        bot.reply_to(message, str(log))
 
 
 # === Обробка повідомлень з вулицями ===
@@ -126,7 +116,8 @@ def check_data():
                 media_group.append(types.InputMediaPhoto(media=img_url))
 
         try:
-            bot.send_media_group(chat_id=CHAT_ID, media=media_group[:9])
+            bot.send_media_group(chat_id=CHAT_ID, media=media_group[:9])  # 10 cause exceptions
+            # TODO check if 31 can be
             time.sleep(61)
         except Exception as e:
             bot.send_message(chat_id=CHAT_ID, text=f"❌ Помилка при надсиланні: {e}\nLink: {link}\nTitle: {title}")
@@ -143,5 +134,5 @@ def schedule_next_check():
 threading.Timer(10, check_data).start()
 
 # === Запуск бота ===
-logging.info("Бот запущено.")
+logging.info("Bot started")
 bot.polling()

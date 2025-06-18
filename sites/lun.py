@@ -1,37 +1,17 @@
 import datetime
 import json
 import logging
-import os.path
-import sys
-
 import bs4
-import requests
 from requests import request
 import database
 
-# Create logger
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
 
-# Formatter for logs
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-
-# File handler
-file_handler = logging.FileHandler('bot.log')
-file_handler.setLevel(logging.INFO)
-file_handler.setFormatter(formatter)
-
-# Console handler
-console_handler = logging.StreamHandler(sys.stdout)
-console_handler.setLevel(logging.INFO)
-console_handler.setFormatter(formatter)
-
-lun = (
+site = (
     'https://lun.ua/rent/kyiv/flats?price_max=16500&currency=UAH&room_count=2&room_count=3&sort=insert_time')
 
 
 def get_new_homes():
-    res = request('get', lun)
+    res = request('get', site)
     soup = bs4.BeautifulSoup(res.content, features="html.parser")
     try:
         homes = json.loads(soup.find("script", id="schema-real-estate").contents[0]).get('itemListElement')
@@ -52,7 +32,7 @@ def get_new_homes():
             home_dict = {
                 'site': 'lun',
                 'title': name,
-                'link': lun,
+                'link': site,
                 'price': price,
                 'description': '',
                 'images': images[:9]

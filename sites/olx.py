@@ -1,37 +1,20 @@
 import datetime
 import logging
 import os.path
-import sys
 
 import bs4
 import requests
 from requests import request
 import database
 
-# Create logger
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
 
-# Formatter for logs
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-
-# File handler
-file_handler = logging.FileHandler('bot.log')
-file_handler.setLevel(logging.INFO)
-file_handler.setFormatter(formatter)
-
-# Console handler
-console_handler = logging.StreamHandler(sys.stdout)
-console_handler.setLevel(logging.INFO)
-console_handler.setFormatter(formatter)
-
-olx = (
+site = (
     'https://www.olx.ua/uk/nedvizhimost/kvartiry/dolgosrochnaya-arenda-kvartir/kiev/?currency=UAH&search%5Border%5D=created_at:desc&search%5Bfilter_float_price:to%5D=16500&search%5Bfilter_enum_number_of_rooms_string%5D%5B0%5D=dvuhkomnatnye')
 
 
 def get_new_homes():
     logging.info(f"{datetime.datetime.now()} - Start parsing homes")
-    res = request('get', olx)
+    res = request('get', site)
     soup = bs4.BeautifulSoup(res.content, features="html.parser")
 
     list_of_homes = soup.find(class_='css-j0t2x2').find_all(class_='css-1g5933j')

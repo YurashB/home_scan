@@ -1,29 +1,9 @@
 import datetime
 import logging
-import os.path
-import sys
 
 import bs4
-import requests
 from requests import request
 import database
-
-# Create logger
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-
-# Formatter for logs
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-
-# File handler
-file_handler = logging.FileHandler('bot.log')
-file_handler.setLevel(logging.INFO)
-file_handler.setFormatter(formatter)
-
-# Console handler
-console_handler = logging.StreamHandler(sys.stdout)
-console_handler.setLevel(logging.INFO)
-console_handler.setFormatter(formatter)
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"}
@@ -82,7 +62,6 @@ def get_new_homes():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(handlers=[file_handler, console_handler], level=logging.INFO)
     new_homes = get_new_homes()
     for home in new_homes:
         print(home)
