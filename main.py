@@ -13,6 +13,7 @@ import maps
 import sites.olx as olx
 import sites.lun as lun
 import sites.rieltor_ua as rieltor_ua
+import sites.dim_ria as dim_ria
 
 
 # === Налаштування логера ===
@@ -25,7 +26,7 @@ BOT_TOKEN = os.environ.get('BOT_TOKEN')
 bot = telebot.TeleBot(BOT_TOKEN)
 
 # === Константи ===
-CHAT_ID = -4862542990
+CHAT_ID = 663980627
 REPEAT_INTERVAL = 200
 
 
@@ -71,8 +72,9 @@ def check_data():
     olx_homes = olx.get_new_homes()
     lun_homes = lun.get_new_homes()
     rieltor_homes = rieltor_ua.get_new_homes()
+    dim_ria_homes = dim_ria.get_new_homes()
 
-    new_homes = olx_homes + lun_homes + rieltor_homes
+    new_homes = olx_homes + lun_homes + rieltor_homes + dim_ria_homes
 
     if not new_homes:
         schedule_next_check()
