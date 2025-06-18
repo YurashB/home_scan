@@ -32,3 +32,13 @@ def check_and_add_home(link, title, price):
     cursor.execute('INSERT INTO homes (link,title, price) VALUES (?,?, ?)', (link, title, price))
     conn.commit()
     return False
+
+
+def delete_last_n_rows(n):
+    cursor.execute(f'''
+        DELETE FROM homes
+        WHERE id IN (
+            SELECT id FROM homes ORDER BY id DESC LIMIT ?
+        )
+    ''', (n,))
+    conn.commit()

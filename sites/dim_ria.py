@@ -12,7 +12,7 @@ dim_ria_api_homes = (
     'https://dom.ria.com/node/searchEngine/v2/?addMoreRealty=false&excludeSold=1&category=1&realty_type=2&operati, on=3&state_id=10&city_id=0&in_radius=0&with_newbuilds=0&price_cur=1&wo_dupl=1&complex_inspected=0&sort=created_at&period=0&notFirstFloor=0&notLastFloor=0&with_map=0&photos_count_from=0&firstIteraction=false&fromAmp=0&city_ids=10&limit=20&market=3&type=list&client=searchV2&operation_type=3&page=0&ch=209_f_2%2C209_t_2%2C235_f_0%2C235_t_16000%2C246_244')
 dim_ria_api_home = "https://dom.ria.com/realty/data/"
 dim_ria_base = 'https://dom.ria.com/uk/'
-dim_ria_img_url = "https://cdn.riastatic/com/photos/"
+dim_ria_img_url = "https://cdn.riastatic.com/photos/"
 
 
 def get_new_homes():

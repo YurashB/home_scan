@@ -8,6 +8,7 @@ import telebot
 from dotenv import load_dotenv
 from telebot import types
 
+import database
 import log
 import maps
 import sites.olx as olx
@@ -26,7 +27,7 @@ BOT_TOKEN = os.environ.get('BOT_TOKEN')
 bot = telebot.TeleBot(BOT_TOKEN)
 
 # === Константи ===
-CHAT_ID = 663980627
+CHAT_ID = -4862542990
 REPEAT_INTERVAL = 200
 
 
@@ -44,6 +45,14 @@ def send_welcome(message):
         log = lines[-3:]
         bot.reply_to(message, str(log))
 
+@bot.message_handler(func=lambda msg: msg.text and msg.text.lower().startswith("delete"))
+def handle_street_message(message):
+    n = message.text.split(" ")[1]
+    try:
+        database.delete_last_n_rows(n)
+        bot.reply_to(message, f"Deleted last {n} rows from the database.")
+    except Exception as e:
+        bot.reply_to(message, f"❌ Не вийшло розрахувати маршрут: {e}")
 
 # === Обробка повідомлень з вулицями ===
 @bot.message_handler(func=lambda msg: msg.text and msg.text.lower().startswith("вул"))
@@ -69,12 +78,12 @@ def check_data():
         schedule_next_check()
         return
 
-    olx_homes = olx.get_new_homes()
-    lun_homes = lun.get_new_homes()
-    rieltor_homes = rieltor_ua.get_new_homes()
+    # olx_homes = olx.get_new_homes()
+    # lun_homes = lun.get_new_homes()
+    # rieltor_homes = rieltor_ua.get_new_homes()
     dim_ria_homes = dim_ria.get_new_homes()
 
-    new_homes = olx_homes + lun_homes + rieltor_homes + dim_ria_homes
+    new_homes = dim_ria_homes
 
     if not new_homes:
         schedule_next_check()
