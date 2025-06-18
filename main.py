@@ -78,12 +78,12 @@ def check_data():
         schedule_next_check()
         return
 
-    # olx_homes = olx.get_new_homes()
-    # lun_homes = lun.get_new_homes()
-    # rieltor_homes = rieltor_ua.get_new_homes()
+    olx_homes = olx.get_new_homes()
+    lun_homes = lun.get_new_homes()
+    rieltor_homes = rieltor_ua.get_new_homes()
     dim_ria_homes = dim_ria.get_new_homes()
 
-    new_homes = dim_ria_homes
+    new_homes = olx_homes + lun_homes + rieltor_homes + dim_ria_homes
 
     if not new_homes:
         schedule_next_check()
