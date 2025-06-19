@@ -39,7 +39,7 @@ def send_welcome(message):
 
 
 @bot.message_handler(commands=['log'])
-def send_welcome(message):
+def send_log(message):
     with open('bot.log', 'r') as f:
         lines = f.readlines()
         log = lines[-3:]
